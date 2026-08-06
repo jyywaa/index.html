@@ -1,10 +1,26 @@
 <!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MochiShop - Login</title><style>:root{--pink:#FF4DA6;--pink2:#FFE4F1}*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
-body{background:var(--pink2);display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
-.login-box{width:90%;max-width:400px;background:white;padding:30px;border-radius:24px;box-shadow:0 10px 30px rgba(255,77,166,.15);text-align:center}
-.login-box h2{color:var(--pink);margin-bottom:20px;font-size:26px;font-weight:800}
-.login-box input{width:100%;padding:14px;margin-bottom:14px;border:1px solid #eee;border-radius:14px;font-size:15px}
-.btn{width:100%;padding:14px;background:var(--pink);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer;font-size:16px}</style></head>
-<body><div class="login-box"><h2>🍡 Login MochiShop</h2><input id="username" placeholder="Username"><input id="password" type="password" placeholder="Password">
-<button class="btn" onclick="login()">Masuk</button><p style="text-align:center;margin-top:15px;font-size:12px;color:#666">Admin: <b>meila / meila123</b><br>Customer: <b>customer / 123</b></p></div>
-<script>function login(){let u=username.value,p=password.value;if(u=='meila'&&p=='meila123')location.href='./admin.html';else if(u=='customer'&&p=='123')location.href='./home.html';else alert('Salah')}</script></body></html>
+<title>Detail</title><style>:root{--pink:#FF4DA6;--pink2:#FFE4F1}*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:var(--pink2);padding-bottom:100px}img{width:100%;border-radius:18px}.price{color:var(--pink);font-weight:800;font-size:24px;margin:10px 0}
+.btn{width:100%;padding:16px;background:var(--pink);color:white;border:none;border-radius:14px;font-weight:800;margin-top:10px;font-size:16px}
+.btn-cart{background:white;color:var(--pink);border:2px solid var(--pink)}
+.comment{background:white;padding:12px;border-radius:12px;margin-top:8px;font-size:14px;display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%}</style></head>
+<body><button onclick="history.back()" style="margin:16px;padding:10px 16px;border:none;background:#ddd;border-radius:10px;font-weight:700">← Kembali</button>
+<div id="d" style="padding:0 16px"></div>
+<script>
+const products=[{id:1,nama:"Ayam Geprek",harga:18000,old:22000,desc:"Ayam crispy dengan sambal level 1-5",img:"https://images.unsplash.com/photo-1606756790138-261d2b800f0b?w=400"},
+{id:2,nama:"Nasi Goreng",harga:20000,old:24000,desc:"Nasi goreng spesial dengan telur dan kerupuk",img:"https://images.unsplash.com/photo-1604908177453-7462950a6a3b?w=400"},
+{id:5,nama:"Matcha Latte",harga:22000,desc:"Minuman matcha premium susu full cream",img:"https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400"},
+{id:7,nama:"Es Krim Mochi",harga:15000,old:18000,desc:"Es krim mochi isi coklat lumer",img:"https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400"},
+{id:9,nama:"Cardigan Pink",harga:120000,old:150000,desc:"Cardigan rajut tebal warna pink pastel",img:"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=400"}];
+const komentar=[{nama:"Karina",text:"Enak banget packing rapi!"},{nama:"Rindi",text:"Cepat sampai. Recommended"},{nama:"Aulia",text:"Rasanya pas, gak keasinan"}];
+let cart=JSON.parse(localStorage.getItem('mochiCart')||'[]');
+let id=localStorage.getItem('detail');
+let p=products.find(x=>x.id==id);
+if(p){d.innerHTML=`<img src="${p.img}"><h2 style="margin-top:10px">${p.nama}</h2><div class="price">Rp${p.harga.toLocaleString()} <span style="font-size:14px;text-decoration:line-through;color:#999">Rp${p.old?.toLocaleString()}</span></div>
+<p style="color:#666;margin:10px 0">${p.desc}</p>
+<button class="btn" onclick="add(${p.id})">🛒 Beli Sekarang</button>
+<button class="btn btn-cart" onclick="add(${p.id})">+ Masukkan Keranjang</button>
+<h4 style="margin-top:20px">Komentar Pembeli</h4>${komentar.map(k=>`<div class="comment"><img src="https://i.pravatar.cc/36?u=${k.nama}" class="avatar"><div><b>${k.nama}</b><div>${k.text}</div></div></div>`).join('')}`}
+function add(id){cart.push(p);localStorage.setItem('mochiCart',JSON.stringify(cart));alert('Berhasil masuk keranjang 🛒')}
+</script></body></html>
