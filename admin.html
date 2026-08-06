@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin</title><style>:root{--pink:#FF4DA6}*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#f5f5f5;display:flex}.sidebar{width:240px;background:var(--pink);color:white;height:100vh;position:fixed;padding:20px}
+.sidebar div{padding:12px;border-radius:10px;cursor:pointer;margin-bottom:8px}.sidebar div.active{background:white;color:var(--pink);font-weight:800}
+.main{margin-left:260px;padding:20px;width:calc(100% - 260px)}
+.card{background:white;padding:20px;border-radius:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+input,select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin-bottom:10px}
+.btn{width:100%;padding:14px;background:var(--pink);color:white;border:none;border-radius:14px;font-weight:800;cursor:pointer}
+table{width:100%;border-collapse:collapse}th,td{padding:12px;text-align:left;border-bottom:1px solid #eee}
+.status{padding:5px 10px;border-radius:10px;font-size:12px;font-weight:700}
+.status.dikemas{background:#FFF3CD;color:#856404}</style></head>
+<body>
+<div class="sidebar"><h2>🍡 Admin</h2>
+<div class="active" onclick="show('dash',this)">Dashboard</div><div onclick="show('input',this)">Input Barang</div>
+<div onclick="show('data',this)">Data Barang</div><div onclick="show('pesan',this)">Pesanan</div><div onclick="logout()">Keluar</div></div>
+<div class="main">
+<div id="dash"><h2>Dashboard</h2><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+<div class="card"><h3>Total Barang</h3><h1 id="tb">0</h1></div><div class="card"><h3>Total Stok</h3><h1 id="ts">0</h1></div><div class="card"><h3>Pesanan</h3><h1 id="tp">0</h1></div></div></div>
+<div id="input" style="display:none"><h2>Input Barang</h2><div class="card">
+<input id="n" placeholder="Nama Barang"><input id="h" type="number" placeholder="Harga"><input id="s" type="number" placeholder="Stok">
+<select id="k"><option>food</option><option>outfit</option></select><button class="btn" onclick="tambah()">Simpan</button></div></div>
+<div id="data" style="display:none"><h2>Data Barang</h2><div class="card"><table><thead><tr><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead><tbody id="tabel"></tbody></table></div></div>
+<div id="pesan" style="display:none"><h2>Pesanan</h2><div class="card"><table><thead><tr><th>No</th><th>Pembeli</th><th>Total</th><th>Status</th></tr></thead><tbody id="tabelp"></tbody></table></div></div>
+</div>
+<script>
+let barang=JSON.parse(localStorage.getItem('barang')||'[]');
+let pesanan=JSON.parse(localStorage.getItem('pesanan')||'[{"id":1,"pembeli":"Syera","total":36000,"status":"dikemas"}]');
+function show(id,el){document.querySelectorAll('.main > div').forEach(t=>t.style.display='none');document.getElementById(id).style.display='block';
+document.querySelectorAll('.sidebar div').forEach(d=>d.classList.remove('active'));el.classList.add('active');refresh()}
+function refresh(){tb.innerText=barang.length;ts.innerText=barang.reduce((a,b)=>a+(b.stok||0),0);tp.innerText=pesanan.length;
+tabel.innerHTML=barang.map(b=>`<tr><td>${b.nama}</td><td>Rp${b.harga.toLocaleString()}</td><td>${b.stok}</td><td><button onclick="hapus(${b.id})">Hapus</button></td></tr>`).join('');
+tabelp.innerHTML=pesanan.map(p=>`<tr><td>#MCH${p.id}</td><td>${p.pembeli}</td><td>Rp${p.total.toLocaleString()}</td><td><span class="status ${p.status}">${p.status}</span></td></tr>`).join('')}
+function tambah(){barang.push({id:Date.now(),nama:n.value,harga:+h.value,stok:+s.value});localStorage.setItem('barang',JSON.stringify(barang));alert('Tersimpan');refresh()}
+function hapus(id){barang=barang.filter(b=>b.id!=id);localStorage.setItem('barang',JSON.stringify(barang));refresh()}
+function logout(){location.href='./index.html'}refresh()
+</script></body></html>
