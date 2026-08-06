@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MochiShop</title>
+<style>
+:root{--pink:#FF4DA6;--pink2:#FFE4F1}*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+body{background:var(--pink2);padding-bottom:80px}
+.page{display:none}.page.active{display:block}
+.btn{width:100%;padding:14px;background:var(--pink);color:white;border:none;border-radius:14px;font-weight:800}
+input{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:10px}
+.login-box{width:90%;max-width:400px;margin:100px auto;background:white;padding:30px;border-radius:20px}
+.login-box h2{text-align:center;color:var(--pink)}
+.sidebar{width:240px;background:var(--pink);color:white;position:fixed;height:100%;padding:20px;left:0;top:0}
+.sidebar div{padding:12px;border-radius:10px;cursor:pointer;margin-bottom:8px}
+.sidebar div.active{background:white;color:var(--pink);font-weight:800}
+.main{margin-left:260px;padding:20px}
+.card{background:white;padding:20px;border-radius:16px;margin-bottom:16px}
+header{background:var(--pink);color:white;padding:14px 16px;display:flex;justify-content:space-between}
+.logo{font-size:20px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:16px}
+.card-cus{background:white;border-radius:18px;overflow:hidden;position:relative}
+.card-cus img{width:100%;height:160px;object-fit:cover}
+.badge{position:absolute;background:var(--pink);color:white;font-size:11px;padding:4px 8px;border-radius:10px;margin:8px;font-weight:800}
+.cart-icon{position:absolute;top:8px;right:8px;background:white;color:var(--pink);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
+.info{padding:10px}.price{color:var(--pink);font-weight:800}
+.btn-gray{width:100%;padding:14px;background:#E0E0E0;color:#333;border:none;border-radius:14px;font-weight:700;margin-top:10px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:white;border-top:1px solid #ddd;padding:10px 0}
+.nav-item{text-align:center;font-size:12px;color:#888;cursor:pointer;position:relative;padding:5px 15px}
+.nav-item.active{color:var(--pink);font-weight:800}
+.cart-badge{position:absolute;top:0;right:5px;background:red;color:white;font-size:10px;font-weight:800;border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center}
+.deskripsi{background:var(--pink2);padding:10px;border-radius:12px;margin-top:8px;font-size:13px}
+.comment{background:var(--pink2);padding:10px;border-radius:12px;margin-top:8px;font-size:13px;display:flex;align-items:center}
+.btn-beli{width:100%;padding:10px;background:var(--pink);color:white;border:none;border-radius:10px;font-weight:800;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="page active">
+  <div class="login-box">
+    <h2>Login MochiShop</h2>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button class="btn" onclick="login()">Masuk</button>
+    <p style="text-align:center;margin-top:10px;font-size:12px">Admin: meila / meila123 | Customer: customer / 123</p>
+  </div>
+</div>
+
+<div id="adminPage" class="page">
+  <div class="sidebar">
+    <h2>🍡 Admin</h2>
+    <div class="active" onclick="showAdmin('adminDashboard',this)">Dashboard</div>
+    <div onclick="logout()">Keluar</div>
+  </div>
+  <div class="main"><div id="adminDashboard"><h2>Dashboard Admin</h2></div></div>
+</div>
+
+<div id="customerPage" class="page">
+<header><div class="logo">🍡 MochiShop</div><button onclick="logout()" style="background:none;border:none;color:white;font-weight:700">Keluar</button></header>
+<div id="home" class="cus-tab active"><div class="grid" id="homeGrid"></div></div>
+<div id="detail" class="cus-tab" style="display:none;padding:16px"><button class="btn-gray" onclick="back()">← Kembali</button><div id="detailContent"></div></div>
+<div id="cart" class="cus-tab" style="display:none;padding:16px"><h3>Keranjang</h3><div id="cartList"></div></div>
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="navCus('home')">Home</div>
+  <div class="nav-item" onclick="navCus('cart')">Keranjang<span id="cartCount" class="cart-badge" style="display:none">0</span></div>
+</div>
+</div>
+
+<script>
+var products=[
+{id:1,nama:"Ayam Geprek",harga:18000,old:22000,diskon:"18% OFF",rating:4.8,img:"https://images.unsplash.com/photo-1606756790138-261d2b800f0b?w=400",desc:"Ayam crispy + nasi + lalapan",komen:[{nama:"Karina",text:"Enak"}]},
+{id:2,nama:"Cardigan Pink",harga:120000,old:150000,diskon:"20% OFF",rating:4.8,img:"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=400",desc:"Cardigan rajut oversize warna pink",komen:[{nama:"Rindi",text:"Adem"}]}];
+var cart=JSON.parse(localStorage.getItem('mochiCart')||'[]');
+
+function login(){
+  var u=document.getElementById('username').value;
+  var p=document.getElementById('password').value;
+  if(u=='meila' && p=='meila123'){showPage('adminPage')}
+  else if(u=='customer' && p=='123'){showPage('customerPage');init()}
+  else alert('Salah')
+}
+function logout(){showPage('loginPage')}
+function showPage(id){document.getElementById('loginPage').className='page';document.getElementById('adminPage').className='page';document.getElementById('customerPage').className='page';document.getElementById(id).className='page active'}
+function showAdmin(id,el){}
+
+function render(list,target){
+  var html='';
+  for(var i=0;i<list.length;i++){
+    var p=list[i];
+    var hargaLama='';
+    if(p.old){hargaLama='<span style="text-decoration:line-through;color:#999">Rp'+p.old.toLocaleString()+'</span>'}
+    html=html+'<div class="card-cus"><span class="badge">'+p.diskon+'</span><div class="cart-icon" onclick="addCart('+p.id+')">🛒</div><div class="info" onclick="showDetail('+p.id+')"><img src="'+p.img+'"><div style="font-weight:700">'+p.nama+'</div><div><span class="price">Rp'+p.harga.toLocaleString()+'</span> '+hargaLama+'</div><div>★ '+p.rating+'</div><div class="deskripsi">'+p.desc+'</div></div></div>'
+  }
+  document.getElementById(target).innerHTML=html;
+}
+function init(){render(products,'homeGrid');updateCartBadge()}
+function showDetail(id){
+  var p;for(var i=0;i<products.length;i++)if(products[i].id==id)p=products[i];
+  document.getElementById('detailContent').innerHTML='<img src="'+p.img+'" style="width:100%;border-radius:18px"><div style="display:flex;gap:8px;margin-top:10px"><div class="cart-icon" style="position:static" onclick="addCart('+p.id+')">🛒</div><button class="btn-beli" onclick="addCart('+p.id+')">Beli Sekarang</button></div><h2>'+p.nama+'</h2><div class="price" style="font-size:20px">Rp'+p.harga.toLocaleString()+'</div><div class="deskripsi">'+p.desc+'</div>';
+  document.getElementById('home').style.display='none';document.getElementById('detail').style.display='block'
+}
+function addCart(id){var p;for(var i=0;i<products.length;i++)if(products[i].id==id)p=products[i];cart.push(p);localStorage.setItem('mochiCart',JSON.stringify(cart));updateCartBadge()}
+function updateCartBadge(){var count=cart.length;var badge=document.getElementById('cartCount');if(count>0){badge.style.display='flex';badge.innerText=count}else{badge.style.display='none'}}
+function navCus(p){document.getElementById('home').style.display='none';document.getElementById('cart').style.display='none';document.getElementById(p).style.display='block'}
+function back(){document.getElementById('detail').style.display='none';document.getElementById('home').style.display='block'}
+</script>
+</body></html>
