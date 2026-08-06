@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MochiShop - Food</title><link rel="stylesheet" href="style.css"></head><body>
+<header><div class="logo">🍡 MochiFood</div><button onclick="logout()" style="background:none;border:none;color:white;font-weight:700">Keluar</button></header>
+<div class="search-wrap"><input id="searchFood" placeholder="Cari makanan..."><button onclick="searchFood()">Cari</button></div>
+<div class="subtabs"><div class="subtab" onclick="filterFood('semua')">Semua</div><div class="subtab" onclick="filterFood('berat')">Makanan Berat</div><div class="subtab" onclick="filterFood('dessert')">Dessert</div><div class="subtab" onclick="filterFood('minuman')">Minuman</div></div>
+<h3 style="padding:0 16px">Rekomendasi Makanan</h3><div class="grid" id="foodGrid"></div>
+<div class="bottom-nav"><a href="home.html" class="nav-item">Home</a><a href="cart.html" class="nav-item">Keranjang<span id="cartBadge" class="badge-cart"></span></a><a href="account.html" class="nav-item">Akun</a></div>
+<script src="script.js"></script><script>render(products.filter(p=>p.kat=='food'),'foodGrid');updateBadge()</script></body></html>
