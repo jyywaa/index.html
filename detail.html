@@ -1,0 +1,17 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail</title><style>:root{--pink:#FF4DA6;--pink2:#FFE4F1}*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:var(--pink2);padding:16px}img{width:100%;border-radius:18px}.price{color:var(--pink);font-weight:800;font-size:20px;margin:10px 0}
+.btn{width:100%;padding:14px;background:var(--pink);color:white;border:none;border-radius:14px;font-weight:800;margin-top:10px}
+.comment{background:white;padding:10px;border-radius:12px;margin-top:8px;font-size:13px;display:flex;align-items:center;gap:8px}
+.avatar{width:32px;height:32px;border-radius:50%}</style></head>
+<body><button onclick="history.back()" style="margin-bottom:10px;padding:10px 16px;border:none;background:#ddd;border-radius:10px">← Kembali</button><div id="d"></div>
+<script>
+const products=[{id:1,nama:"Ayam Geprek",harga:18000,img:"https://images.unsplash.com/photo-1606756790138-261d2b800f0b?w=400"}];
+const komentar=[{nama:"Karina",text:"Enak banget!"},{nama:"Rindi",text:"Packing rapi"}];
+let cart=JSON.parse(localStorage.getItem('mochiCart')||'[]');
+let p=products.find(x=>x.id==localStorage.getItem('detail'));
+d.innerHTML=`<img src="${p.img}"><h2>${p.nama}</h2><div class="price">Rp${p.harga.toLocaleString()}</div>
+<button class="btn" onclick="add(${p.id})">+ Masukkan Keranjang</button>
+<h4 style="margin-top:16px">Komentar</h4>${komentar.map(k=>`<div class="comment"><img src="https://i.pravatar.cc/32?u=${k.nama}" class="avatar"><b>${k.nama}:</b> ${k.text}</div>`).join('')}`
+function add(id){cart.push(p);localStorage.setItem('mochiCart',JSON.stringify(cart));alert('Masuk keranjang')}
+</script></body></html>
