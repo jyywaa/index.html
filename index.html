@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MochiShop - Store & Admin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --pink: #FF4DA6; --pink2: #FFE4F1; --pink-dark: #e03b91; }
+* { margin:0; padding:0; box-sizing:border-box; font-family:system-ui, -apple-system, sans-serif; }
+body { background: #fce8f3; min-height: 100vh; padding-bottom: 70px; color: #333; }
+
+/* UTILS */
+.page { display: none; }
+.page.active { display: block; }
+.btn { width:100%; padding:12px 16px; background:var(--pink); color:white; border:none; border-radius:12px; font-weight:700; cursor:pointer; transition:0.2s; font-size:14px; }
+.btn:active { transform: scale(0.98); background: var(--pink-dark); }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; width: auto; display: inline-block; }
+.btn-danger { background: #DC3545; color: white; }
+.btn-warning { background: #FFC107; color: black; }
+.btn-back { background:#f0f0f0; border:none; width:36px; height:36px; border-radius:50%; font-size:16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#444; }
+.btn-back:hover { background:#e0e0e0; }
+
+input, select, textarea { width:100%; padding:11px 14px; margin:6px 0 12px 0; border:1px solid #FFC2E2; border-radius:10px; outline:none; font-size:13px; background:#fff; }
+input:focus, select:focus, textarea:focus { border-color: var(--pink); }
+
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#222; color:white; padding:10px 22px; border-radius:25px; opacity:0; transition:.3s; z-index:9999; font-size:13px; font-weight:700; pointer-events:none; }
+.toast.show { opacity:1; }
+
+/* LOGIN */
+.login-box { width:90%; max-width:380px; margin:80px auto; background:white; padding:32px 24px; border-radius:24px; box-shadow:0 8px 25px rgba(255, 77, 166, 0.15); text-align:center; }
+.welcome { font-size:26px; font-weight:800; color:var(--pink); margin-bottom:4px; }
+
+/* ADMIN */
+.admin-container { display: flex; min-height: 100vh; }
+.sidebar { width:240px; background:var(--pink); color:white; position:fixed; height:100vh; padding:20px; left:0; top:0; z-index:20; overflow-y:auto; }
+.sidebar h2 { font-size:18px; margin-bottom:20px; text-align:center; }
+.sidebar div { padding:12px; border-radius:10px; cursor:pointer; margin-bottom:8px; font-weight:600; display:flex; align-items:center; gap:10px; font-size:13px; }
+.sidebar div:hover, .sidebar div.active { background:white; color:var(--pink); font-weight:800; }
+.main { margin-left:240px; padding:24px; width:calc(100% - 240px); background:#fcf0f7; min-height:100vh; }
+.card { background:white; padding:20px; border-radius:16px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,.03); }
+table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
+th, td { padding:10px 12px; text-align:left; border-bottom:1px solid #FFE4F1; }
+th { background:#FFF0F7; color:var(--pink); font-weight:800; }
+.status { padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; display:inline-block; }
+.status.dikemas { background:#FFF3CD; color:#856404; }
+.status.dikirim { background:#CCE5FF; color:#004085; }
+.status.selesai { background:#D4EDDA; color:#155724; }
+
+/* CUSTOMER MODE (DESKTOP CENTERED RESPONSIVE) */
+.app-container { max-width: 550px; margin: 0 auto; background: white; min-height: 100vh; position: relative; box-shadow: 0 0 25px rgba(0,0,0,0.08); padding-bottom: 80px; }
+header { background:var(--pink); color:white; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:10; }
+.logo { font-size:20px; font-weight:800; display:flex; align-items:center; gap:6px; }
+
+.search-wrap { display:flex; padding:12px 16px; background:var(--pink); gap:8px; }
+.search-wrap input { flex:1; padding:9px 16px; border-radius:25px; border:none; margin:0; }
+.search-wrap button { background:white; color:var(--pink); border:none; border-radius:25px; padding:0 16px; font-weight:700; cursor:pointer; }
+
+.tabs { display:flex; gap:8px; padding:12px 16px; overflow-x:auto; background:white; border-bottom:1px solid #f0f0f0; }
+.tab { padding:8px 16px; background:var(--pink2); border-radius:20px; color:var(--pink); font-weight:700; cursor:pointer; white-space:nowrap; font-size:12px; }
+.tab.active { background:var(--pink); color:white; }
+
+.subtabs { display:flex; gap:8px; padding:10px 16px; overflow-x:auto; background:white; }
+.subtab { padding:5px 12px; background:#f0f0f0; border-radius:15px; color:#666; font-size:12px; cursor:pointer; white-space:nowrap; font-weight:600; }
+.subtab.active { background:var(--pink); color:white; }
+
+.grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:16px; }
+.card-cus { background:white; border-radius:16px; overflow:hidden; border:1px solid #FFE4F1; cursor:pointer; position:relative; box-shadow:0 2px 8px rgba(0,0,0,.03); transition:0.2s; }
+.card-cus:hover { transform: translateY(-2px); }
+.card-cus img { width:100%; height:135px; object-fit:cover; }
+.badge { position:absolute; top:8px; left:8px; background:var(--pink); color:white; font-size:10px; padding:3px 7px; border-radius:8px; font-weight:800; }
+.info { padding:10px; }
+.price { color:var(--pink); font-weight:800; font-size:14px; }
+.old { font-size:11px; text-decoration:line-through; color:#999; margin-left:4px; }
+.card-btn { width:100%; margin-top:8px; padding:8px; background:var(--pink); color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:12px; }
+
+/* BOTTOM NAV */
+.bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:550px; display:flex; justify-content:space-around; background:white; border-top:1px solid #FFE4F1; padding:10px 0; z-index:100; }
+.nav-item { text-align:center; font-size:11px; color:#888; cursor:pointer; position:relative; flex:1; font-weight:600; }
+.nav-item i { font-size:18px; display:block; margin-bottom:2px; }
+.nav-item.active { color:var(--pink); font-weight:800; }
+.cart-count { position:absolute; top:-2px; right:28%; background:var(--pink); color:white; border-radius:50%; width:16px; height:16px; font-size:10px; display:flex; align-items:center; justify-content:center; font-weight:bold; }
+
+/* EXTRA COMPONENTS */
+.comment { background:#fff; padding:10px; border-radius:12px; margin-top:8px; font-size:12px; border:1px solid #FFE4F1; }
+.flash { background:linear-gradient(90deg,#FF4DA6,#FF8FD9); color:white; padding:10px; text-align:center; border-radius:12px; margin:12px 16px 0 16px; font-weight:800; font-size:12px; }
+.cart-item { display:flex; gap:12px; background:white; padding:12px; border-radius:14px; margin-bottom:10px; border:1px solid #FFE4F1; align-items:center; }
+.setting-item { background:white; padding:14px; border-radius:14px; margin-bottom:10px; display:flex; justify-content:space-between; border:1px solid #FFE4F1; font-size:13px; font-weight:600; cursor:pointer; }
+.avatar { width:55px; height:55px; border-radius:50%; object-fit:cover; }
+.detail-header { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- ================= 1. LOGIN ================= -->
+<div id="loginPage" class="page active">
+  <div class="login-box">
+    <div class="welcome">MochiShop 🍡</div>
+    <p style="font-size:12px; color:#777; margin-bottom:20px;">Silakan masuk ke akun Anda</p>
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button class="btn" onclick="login()">Masuk</button>
+    <div style="margin-top:20px; font-size:12px; color:#666; background:#fff0f7; padding:10px; border-radius:10px;">
+      <b>Admin:</b> meila / meila123<br>
+      <b>Customer:</b> customer / 123
+    </div>
+  </div>
+</div>
+
+<!-- ================= 2. ADMIN ================= -->
+<div id="adminPage" class="page">
+  <div class="admin-container">
+    <div class="sidebar">
+      <h2>🍡 Admin Mochi</h2>
+      <div class="active" onclick="showAdmin('adminDashboard',this)"><i class="fa-solid fa-chart-line"></i> Dashboard</div>
+      <div onclick="showAdmin('adminBarang',this)"><i class="fa-solid fa-box"></i> Kelola Barang</div>
+      <div onclick="showAdmin('adminHarga',this)"><i class="fa-solid fa-tags"></i> View & Edit Harga</div>
+      <div onclick="showAdmin('adminSupplier',this)"><i class="fa-solid fa-truck"></i> Kelola Supplier</div>
+      <div onclick="showAdmin('adminPembelian',this)"><i class="fa-solid fa-cart-flatbed"></i> Pembelian & Stok</div>
+      <div onclick="showAdmin('adminPesanan',this)"><i class="fa-solid fa-receipt"></i> Status Pengiriman</div>
+      <div onclick="showAdmin('adminLaporan',this)"><i class="fa-solid fa-file-invoice"></i> Laporan Penjualan</div>
+      <div onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</div>
+    </div>
+
+    <div class="main">
+      <div id="adminDashboard" class="admin-sec">
+        <h2>Dashboard Ringkasan</h2>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:16px;">
+          <div class="card"><h3>Total Barang</h3><h1 id="totalBarang">0</h1></div>
+          <div class="card"><h3>Total Stok</h3><h1 id="totalStok">0</h1></div>
+          <div class="card"><h3>Total Supplier</h3><h1 id="totalSupplier">0</h1></div>
+          <div class="card"><h3>Total Pesanan</h3><h1 id="totalPesanan">0</h1></div>
+        </div>
+      </div>
+
+      <div id="adminBarang" class="admin-sec" style="display:none">
+        <h2>Input & Kelola Data Barang</h2>
+        <div class="card">
+          <input id="namaBarang" placeholder="Nama Barang">
+          <input id="hargaBeliBarang" type="number" placeholder="Harga Beli (Rp)">
+          <input id="hargaJualBarang" type="number" placeholder="Harga Jual (Rp)">
+          <input id="stokBarang" type="number" placeholder="Stok Awal">
+          <select id="kategoriBarang"><option value="food">food</option><option value="outfit">outfit</option></select>
+          <button class="btn" onclick="tambahBarang()">Simpan Barang Baru</button>
+        </div>
+        <div class="card">
+          <h3>Daftar Barang</h3>
+          <table>
+            <thead><tr><th>ID</th><th>Nama</th><th>Kategori</th><th>Stok</th><th>Aksi</th></tr></thead>
+            <tbody id="tabelBarang"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminHarga" class="admin-sec" style="display:none">
+        <h2>View & Edit Harga Barang</h2>
+        <div class="card">
+          <table>
+            <thead><tr><th>ID</th><th>Nama Barang</th><th>Harga Beli</th><th>Harga Jual</th><th>Aksi Edit</th></tr></thead>
+            <tbody id="tabelHarga"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminSupplier" class="admin-sec" style="display:none">
+        <h2>Input & Data Supplier</h2>
+        <div class="card">
+          <input id="namaSupplier" placeholder="Nama Supplier">
+          <input id="telpSupplier" placeholder="No. Telepon">
+          <input id="alamatSupplier" placeholder="Alamat">
+          <button class="btn" onclick="tambahSupplier()">Simpan Supplier</button>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>ID</th><th>Nama Supplier</th><th>Telepon</th><th>Alamat</th><th>Aksi</th></tr></thead>
+            <tbody id="tabelSupplier"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminPembelian" class="admin-sec" style="display:none">
+        <h2>Pembelian Barang (Tambah Stok Toko)</h2>
+        <div class="card">
+          <label style="font-size:12px; font-weight:bold;">Pilih Barang:</label>
+          <select id="selectBarangPembelian"></select>
+          <label style="font-size:12px; font-weight:bold;">Pilih Supplier:</label>
+          <select id="selectSupplierPembelian"></select>
+          <input id="qtyPembelian" type="number" placeholder="Jumlah Stok Masuk">
+          <input id="totalBeliPembelian" type="number" placeholder="Total Harga Beli Nota (Rp)">
+          <button class="btn" onclick="simpanPembelian()">Input Pembelian & Tambah Stok</button>
+        </div>
+        <div class="card">
+          <h3>Riwayat Pembelian Stok</h3>
+          <table>
+            <thead><tr><th>No Nota</th><th>Tanggal</th><th>Barang</th><th>Supplier</th><th>Jumlah Masuk</th><th>Total Biaya</th></tr></thead>
+            <tbody id="tabelPembelian"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- STATUS PENGIRIMAN DENGAN HP & ALAMAT -->
+      <div id="adminPesanan" class="admin-sec" style="display:none">
+        <h2>Status Pengiriman Pesanan</h2>
+        <div class="card">
+          <table>
+            <thead><tr><th>No Pesanan</th><th>Pembeli & Kontak</th><th>Alamat Kirim</th><th>Total</th><th>Status</th><th>Ubah Status</th></tr></thead>
+            <tbody id="tabelPesanan"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="adminLaporan" class="admin-sec" style="display:none">
+        <h2>Laporan Penjualan</h2>
+        <div class="card">
+          <label>Jenis Laporan:</label>
+          <select id="jenisLaporan"><option value="harian">Harian</option><option value="bulanan">Bulanan</option><option value="tahunan">Tahunan</option></select>
+          <label>Tgl Awal:</label><input id="tglAwal" type="date">
+          <label>Tgl Akhir:</label><input id="tglAkhir" type="date">
+          <button class="btn" onclick="buatLaporan()">Tampilkan Laporan</button>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Tanggal</th><th>No Pesanan</th><th>Total</th></tr></thead>
+            <tbody id="tabelLaporan"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 3. CUSTOMER ================= -->
+<div id="customerPage" class="page">
+  <div class="app-container">
+    <header>
+      <div class="logo">🍡 MochiShop</div>
+      <button onclick="logout()" style="background:none; border:none; color:white; font-weight:700; cursor:pointer;">Keluar</button>
+    </header>
+
+    <!-- HOME TAB -->
+    <div id="home" class="cus-tab active">
+      <div class="search-wrap">
+        <input id="searchInput" placeholder="Cari ayam geprek, cardigan...">
+        <button onclick="searchHome()">Cari</button>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchMainCategory('home', this)">Home</div>
+        <div class="tab" onclick="switchMainCategory('food', this)">MochiFood</div>
+        <div class="tab" onclick="switchMainCategory('outfit', this)">MochiOutfit</div>
+        <div class="tab" onclick="switchMainCategory('promo', this)">Promo</div>
+      </div>
+      <div class="flash">🎉 FLASH SALE 9.9 - DISKON UP TO 90% 🎉</div>
+      <h3 style="padding:14px 16px 0 16px; font-size:15px;">Rekomendasi Untuk Mochi</h3>
+      <div class="grid" id="homeGrid"></div>
+    </div>
+
+    <!-- FOOD TAB -->
+    <div id="food" class="cus-tab" style="display:none">
+      <div class="search-wrap">
+        <input id="searchFood" placeholder="Cari makanan...">
+        <button onclick="searchFood()">Cari</button>
+      </div>
+      <div class="subtabs">
+        <div class="subtab active" onclick="filterFood('semua', this)">Semua</div>
+        <div class="subtab" onclick="filterFood('berat', this)">Makanan Berat</div>
+        <div class="subtab" onclick="filterFood('dessert', this)">Dessert</div>
+        <div class="subtab" onclick="filterFood('minuman', this)">Minuman</div>
+      </div>
+      <h3 style="padding:10px 16px 0 16px; font-size:15px;">Rekomendasi Makanan</h3>
+      <div class="grid" id="foodGrid"></div>
+    </div>
+
+    <!-- OUTFIT TAB -->
+    <div id="outfit" class="cus-tab" style="display:none">
+      <div class="search-wrap">
+        <input id="searchOutfit" placeholder="Cari baju...">
+        <button onclick="searchOutfit()">Cari</button>
+      </div>
+      <div class="subtabs">
+        <div class="subtab active" onclick="filterOutfit('semua', this)">Semua</div>
+        <div class="subtab" onclick="filterOutfit('cardigan', this)">Cardigan</div>
+        <div class="subtab" onclick="filterOutfit('sweater', this)">Sweater</div>
+        <div class="subtab" onclick="filterOutfit('jeans', this)">Jeans</div>
+      </div>
+      <h3 style="padding:10px 16px 0 16px; font-size:15px;">Rekomendasi Outfit</h3>
+      <div class="grid" id="outfitGrid"></div>
+    </div>
+
+    <!-- PROMO TAB -->
+    <div id="promo" class="cus-tab" style="display:none">
+      <h3 style="padding:16px 16px 0 16px; font-size:15px;">Promo Spesial Hari Ini</h3>
+      <div class="grid" id="promoGrid"></div>
+    </div>
+
+    <!-- DETAIL PRODUK -->
+    <div id="detail" class="cus-tab" style="display:none; padding:16px;">
+      <div class="detail-header">
+        <button class="btn-back" onclick="backToHome()">←</button>
+        <h3 style="font-size:16px;">Detail Produk</h3>
+      </div>
+      <div id="detailContent"></div>
+    </div>
+
+    <!-- KERANJANG & CHECKOUT DENGAN ALAMAT & HP -->
+    <div id="cart" class="cus-tab" style="display:none; padding:16px;">
+      <h3 style="margin-bottom:12px;">Keranjang Saya</h3>
+      <div id="cartList"></div>
+      <div id="cartCheckoutBox" style="display:none; margin-top:16px; background:#fff0f7; padding:14px; border-radius:14px;">
+        <h4 style="margin-bottom:8px; color:var(--pink);">Form Pengiriman</h4>
+        <input id="checkoutHp" placeholder="No. HP / WhatsApp (Contoh: 0812345678)" type="tel">
+        <textarea id="checkoutAlamat" placeholder="Alamat Lengkap Pengiriman (Jl, No Rumah, Kel, Kec)" rows="2"></textarea>
+        <div id="total" style="font-weight:800; font-size:16px; margin:10px 0; color:var(--pink);"></div>
+        <button class="btn" onclick="checkout()">Checkout Sekarang</button>
+      </div>
+    </div>
+
+    <!-- RIWAYAT PESANAN HALAMAN khusus -->
+    <div id="historyPage" class="cus-tab" style="display:none; padding:16px;">
+      <div class="detail-header">
+        <button class="btn-back" onclick="navCus('account')">←</button>
+        <h3 style="font-size:16px;">Riwayat Pesanan Saya</h3>
+      </div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- AKUN TAB -->
+    <div id="account" class="cus-tab" style="display:none; padding:16px;">
+      <div style="display:flex; gap:14px; align-items:center; padding:18px; background:var(--pink); color:white; border-radius:18px;">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="avatar">
+        <div>
+          <h3 style="font-size:16px;">Syera</h3>
+          <p style="font-size:12px; opacity:0.9;">syera@email.com</p>
+        </div>
+      </div>
+      <div style="margin-top:20px;">
+        <div class="setting-item" onclick="toast('Menu Edit Profil')">Edit Profil <span>></span></div>
+        <div class="setting-item" onclick="openHistoryPage()">Riwayat Pesanan <span>></span></div>
+        <div class="setting-item" onclick="toast('Saldo MochiPay Rp120.000')">MochiPay: Rp120.000 <span>></span></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <div class="nav-item active" id="nav-home" onclick="navCus('home')">
+        <i class="fa-solid fa-house"></i>Home
+      </div>
+      <div class="nav-item" id="nav-cart" onclick="navCus('cart')">
+        <i class="fa-solid fa-cart-shopping"></i>Keranjang
+        <span class="cart-count" id="cartCount">0</span>
+      </div>
+      <div class="nav-item" id="nav-account" onclick="navCus('account')">
+        <i class="fa-solid fa-user"></i>Akun
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
