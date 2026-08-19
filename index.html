@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MochiShop - Dashboard Admin & Store</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ==========================================
+       VARIABLES & RESET DESIGN MOCHISHOP
+       ========================================== */
+    :root {
+      --primary: #FF4DA6;
+      --secondary: #FF8FD9;
+      --bg: #FFE4F1;
+      --surface: #FFFFFF;
+      --text: #2D2D2D;
+      --text-muted: #7D7D7D;
+      --radius: 16px;
+      --shadow: 0 8px 24px rgba(255, 77, 166, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+    .hidden { display: none !important; }
+
+    .btn {
+      border: none;
+      border-radius: var(--radius);
+      padding: 10px 18px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-warning { background: #FFC107; color: #000; }
+    .btn-danger { background: #DC3545; color: white; }
+    .btn-info { background: #17A2B8; color: white; }
+    .btn-block { width: 100%; }
+    .btn:active { transform: scale(0.96); }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 9999;
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+
+    .login-box {
+      width: 90%;
+      max-width: 380px;
+      margin: 80px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .login-box h2 { color: var(--primary); margin-bottom: 8px; }
+    .form-control, select, input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #FFC2E2;
+      border-radius: 10px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .admin-container { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px;
+      background: var(--primary);
+      color: white;
+      padding: 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar h2 { font-size: 18px; margin-bottom: 20px; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li {
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-menu li:hover, .sidebar-menu li.active {
+      background: white;
+      color: var(--primary);
+    }
+    .main-content {
+      margin-left: 240px;
+      padding: 24px;
+      width: calc(100% - 240px);
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stat-card { background: white; padding: 16px; border-radius: 14px; text-align: center; border-left: 5px solid var(--primary); }
+    .stat-card h3 { font-size: 12px; color: var(--text-muted); }
+    .stat-card h1 { font-size: 24px; color: var(--primary); margin-top: 4px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #FFE4F1; }
+    th { background: #FFF0F7; color: var(--primary); font-weight: 700; }
+
+    .app-container { max-width: 480px; margin: 0 auto; background: white; min-height: 100vh; position: relative; padding-bottom: 70px; }
+    .sticky-header { position: sticky; top: 0; background: var(--primary); color: white; padding: 14px; z-index: 100; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 14px; }
+    .card-cus { background: white; border-radius: var(--radius); overflow: hidden; border: 1px solid #FFE4F1; position: relative; }
+    .card-cus img { width: 100%; height: 130px; object-fit: cover; }
+    .info { padding: 10px; }
+    .price { color: var(--primary); font-weight: 800; font-size: 14px; }
+    .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #FFE4F1; }
+    .nav-item { border: none; background: none; color: var(--text-muted); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .nav-item.active { color: var(--primary); }
+
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal.active { display: flex; }
+    .modal-content { background: white; width: 90%; max-width: 450px; padding: 20px; border-radius: var(--radius); }
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- HALAMAN LOGIN -->
+  <div id="loginPage" class="page active">
+    <div class="login-box">
+      <h2>Selamat Datang! 🍡</h2>
+      <p style="font-size:12px; color:#888; margin-bottom:16px;">Silakan login ke sistem MochiShop</p>
+      <input id="username" class="form-control" placeholder="Username">
+      <input id="password" type="password" class="form-control" placeholder="Password">
+      <button class="btn btn-primary btn-block" style="margin-top:10px" onclick="login()">Masuk Sekarang</button>
+      <p style="margin-top:16px; font-size:11px; color:#666;">
+        <b>Admin:</b> meila / meila123<br>
+        <b>Customer:</b> customer / 123
+      </p>
+    </div>
+  </div>
+
+  <!-- HALAMAN ADMIN -->
+  <div id="adminPage" class="page">
+    <div class="admin-container">
+      <div class="sidebar">
+        <h2>🍡 Admin Panel</h2>
+        <ul class="sidebar-menu">
+          <li class="active" onclick="showAdminSection('adminDashboard', this)"><i class="fa-solid fa-chart-line"></i> Dashboard</li>
+          <li onclick="showAdminSection('adminBarang', this)"><i class="fa-solid fa-box"></i> Kelola Barang</li>
+          <li onclick="showAdminSection('adminHarga', this)"><i class="fa-solid fa-tags"></i> View & Edit Harga</li>
+          <li onclick="showAdminSection('adminSupplier', this)"><i class="fa-solid fa-truck"></i> Kelola Supplier</li>
+          <li onclick="showAdminSection('adminPembelian', this)"><i class="fa-solid fa-cart-flatbed"></i> Pembelian & Stok</li>
+          <li onclick="showAdminSection('adminPesanan', this)"><i class="fa-solid fa-receipt"></i> Status Pengiriman</li>
+          <li onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Keluar</li>
+        </ul>
+      </div>
+
+      <div class="main-content">
+        <!-- Dashboard -->
+        <div id="adminDashboard" class="admin-sec">
+          <h2>Dashboard Toko</h2>
+          <div class="stats-grid" style="margin-top:16px;">
+            <div class="stat-card"><h3>TOTAL BARANG</h3><h1 id="totalBarang">0</h1></div>
+            <div class="stat-card"><h3>TOTAL STOK</h3><h1 id="totalStok">0</h1></div>
+            <div class="stat-card"><h3>TOTAL SUPPLIER</h3><h1 id="totalSupplier">0</h1></div>
+            <div class="stat-card"><h3>TOTAL PESANAN</h3><h1 id="totalPesanan">0</h1></div>
+          </div>
+        </div>
+
+        <!-- 1. Kelola Barang -->
+        <div id="adminBarang" class="admin-sec hidden">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2>Data Barang</h2>
+            <button class="btn btn-primary" onclick="openModalBarang()"><i class="fa-solid fa-plus"></i> Tambah Barang</button>
+          </div>
+          <div class="card">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Nama Barang</th><th>Kategori</th><th>Stok</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tabelBarang"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. View & Edit Harga -->
+        <div id="adminHarga" class="admin-sec hidden">
+          <h2>View & Edit Harga Barang</h2>
+          <div class="card" style="margin-top:16px;">
+            <table>
+              <thead>
+                <tr><th>Kode</th><th>Nama Barang</th><th>Harga Beli</th><th>Harga Jual</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tabelHarga"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. Kelola Supplier -->
+        <div id="adminSupplier" class="admin-sec hidden">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2>Data Supplier</h2>
+            <button class="btn btn-primary" onclick="openModalSupplier()"><i class="fa-solid fa-plus"></i> Tambah Supplier</button>
+          </div>
+          <div class="card">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Nama Supplier</th><th>Telepon</th><th>Alamat</th><th>Aksi</th></tr>
+              </thead>
+              <tbody id="tabelSupplier"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. Pembelian Stok Masuk -->
+        <div id="adminPembelian" class="admin-sec hidden">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h2>Pembelian Barang (Stok Masuk)</h2>
+            <button class="btn btn-primary" onclick="openModalPembelian()"><i class="fa-solid fa-cart-plus"></i> Input Pembelian Baru</button>
+          </div>
+          <div class="card">
+            <table>
+              <thead>
+                <tr><th>No Nota</th><th>Tanggal</th><th>Barang</th><th>Supplier</th><th>Jumlah Masuk</th><th>Harga Beli Total</th></tr>
+              </thead>
+              <tbody id="tabelPembelian"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Status Pengiriman -->
+        <div id="adminPesanan" class="admin-sec hidden">
+          <h2>Status Pengiriman Pesanan</h2>
+          <div class="card" style="margin-top:16px;">
+            <table>
+              <thead>
+                <tr><th>No Pesanan</th><th>Pembeli</th><th>Total</th><th>Status</th><th>Ubah Status</th></tr>
+              </thead>
+              <tbody id="tabelPesanan"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HALAMAN CUSTOMER -->
+  <div id="customerPage" class="page">
+    <div class="app-container">
+      <header class="sticky-header">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <h3>MochiShop 🍡</h3>
+          <button onclick="logout()" style="background:none; border:none; color:white; font-weight:700">Keluar</button>
+        </div>
+      </header>
+
+      <div style="padding:16px">
+        <h3>Rekomendasi Produk</h3>
+        <div class="grid" id="customerProductGrid" style="margin-top:10px"></div>
+      </div>
+
+      <div class="bottom-nav">
+        <button class="nav-item active"><i class="fa-solid fa-house"></i><br>Home</button>
+        <button class="nav-item" onclick="toast('Fitur Keranjang Aktif')"><i class="fa-solid fa-cart-shopping"></i><br>Keranjang</button>
+        <button class="nav-item" onclick="logout()"><i class="fa-solid fa-user"></i><br>Akun</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FORMS -->
+  <div id="modalBarang" class="modal">
+    <div class="modal-content">
+      <h3 id="modalBarangTitle">Input Barang</h3>
+      <input type="hidden" id="editBarangId">
+      <input id="inputNamaBarang" placeholder="Nama Barang" class="form-control">
+      <input id="inputKategoriBarang" placeholder="Kategori (food/outfit)" class="form-control">
+      <input id="inputHargaBeli" type="number" placeholder="Harga Beli (Rp)" class="form-control">
+      <input id="inputHargaJual" type="number" placeholder="Harga Jual (Rp)" class="form-control">
+      <input id="inputStokBarang" type="number" placeholder="Stok Awalan" class="form-control">
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn btn-primary btn-block" onclick="simpanBarang()">Simpan</button>
+        <button class="btn btn-danger btn-block" onclick="closeModal('modalBarang')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalHarga" class="modal">
+    <div class="modal-content">
+      <h3>Edit Harga Jual Barang</h3>
+      <input type="hidden" id="editHargaId">
+      <label style="font-size:12px">Harga Jual Baru (Rp):</label>
+      <input id="inputEditHargaJual" type="number" class="form-control">
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn btn-primary btn-block" onclick="simpanHargaBaru()">Update Harga</button>
+        <button class="btn btn-danger btn-block" onclick="closeModal('modalHarga')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalSupplier" class="modal">
+    <div class="modal-content">
+      <h3 id="modalSupplierTitle">Input Supplier</h3>
+      <input type="hidden" id="editSupplierId">
+      <input id="inputNamaSupplier" placeholder="Nama Supplier" class="form-control">
+      <input id="inputTelpSupplier" placeholder="No. Telepon" class="form-control">
+      <input id="inputAlamatSupplier" placeholder="Alamat" class="form-control">
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn btn-primary btn-block" onclick="simpanSupplier()">Simpan</button>
+        <button class="btn btn-danger btn-block" onclick="closeModal('modalSupplier')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalPembelian" class="modal">
+    <div class="modal-content">
+      <h3>Input Pembelian (Stok Masuk)</h3>
+      <select id="selectBarangPembelian" class="form-control"></select>
+      <select id="selectSupplierPembelian" class="form-control"></select>
+      <input id="inputQtyPembelian" type="number" placeholder="Jumlah Stok Masuk" class="form-control">
+      <input id="inputTotalBeli" type="number" placeholder="Total Harga Beli (Rp)" class="form-control">
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn btn-primary btn-block" onclick="simpanPembelian()">Simpan & Tambah Stok</button>
+        <button class="btn btn-danger btn-block" onclick="closeModal('modalPembelian')">Batal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMANGGIL FILE JAVASCRIPT EXTERNAL -->
+  <script src="script.js"></script>
+</body>
+</html>
